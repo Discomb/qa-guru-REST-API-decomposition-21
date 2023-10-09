@@ -20,16 +20,16 @@ public class LoginTests extends TestBase {
     @Test
     void successfulLoginTest() {
 
-        String authdata = new JSONObject()
+        String authData = new JSONObject()
                 .put("userName", login)
                 .put("password", password)
                 .toString();
 
 
-        Response response = given()
+        Response authResponse = given()
                 .log().all()
                 .contentType(ContentType.JSON)
-                .body(authdata)
+                .body(authData)
                 .when()
                 .basePath("/Account/v1")
                 .post("/login")
@@ -40,9 +40,9 @@ public class LoginTests extends TestBase {
                 .extract().response();
 
         open("/favicon.ico");
-        getWebDriver().manage().addCookie(new Cookie("userID", response.path("userId")));
-        getWebDriver().manage().addCookie(new Cookie("token", response.path("token")));
-        getWebDriver().manage().addCookie(new Cookie("expires", response.path("expires")));
+        getWebDriver().manage().addCookie(new Cookie("userID", authResponse.path("userId")));
+        getWebDriver().manage().addCookie(new Cookie("token", authResponse.path("token")));
+        getWebDriver().manage().addCookie(new Cookie("expires", authResponse.path("expires")));
 
         open("/profile");
         $("#userName-value").shouldHave(Condition.text(login));
