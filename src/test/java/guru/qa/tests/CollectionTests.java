@@ -57,7 +57,7 @@ public class CollectionTests extends TestBase {
         String bookData = format("{\"userId\":\"%s\",\"collectionOfIsbns\":[{\"isbn\":\"%s\"}]}",
                 authResponse.path("userId"), isbn);
 
-        Response addBookResponse = given()
+        given()
                 .log().all()
                 .contentType(ContentType.JSON)
                 .header("Authorization", "Bearer " + authResponse.path("token"))
@@ -68,8 +68,7 @@ public class CollectionTests extends TestBase {
                 .then()
                 .log().status()
                 .log().body()
-                .statusCode(201)
-                .extract().response();
+                .statusCode(201);
 
         open("/favicon.ico");
         getWebDriver().manage().addCookie(new Cookie("userID", authResponse.path("userId")));
@@ -173,5 +172,81 @@ public class CollectionTests extends TestBase {
                 .statusCode(400)
                 .body("code", is("1210"))
                 .body("message", is("ISBN already present in the User's Collection!"));
+    }
+
+    @Test
+    void deleteSingleBookFromCollectionTest() {
+
+        String authData = new JSONObject()
+                .put("userName", login)
+                .put("password", password)
+                .toString();
+
+        Response authResponse = given()
+                .log().all()
+                .contentType(ContentType.JSON)
+                .body(authData)
+                .when()
+                .basePath("/Account/v1")
+                .post("/login")
+                .then()
+                .log().status()
+                .log().body()
+                .statusCode(200)
+                .extract().response();
+
+        given()
+                .log().all()
+                .contentType(ContentType.JSON)
+                .header("Authorization", "Bearer " + authResponse.path("token"))
+                .queryParams("UserId", authResponse.path("userId"))
+                .when()
+                .basePath("BookStore/v1")
+                .delete("/Books")
+                .then()
+                .log().status()
+                .log().body()
+                .statusCode(204);
+
+        String isbn = "9781491904244";
+
+        String bookData = format("{\"userId\":\"%s\",\"collectionOfIsbns\":[{\"isbn\":\"%s\"}]}",
+                authResponse.path("userId"), isbn);
+        String deleteBookData = format("{\"userId\":\"%s\",\"isbn\":\"%s\"}",
+                authResponse.path("userId"), isbn);
+
+        given()
+                .log().all()
+                .contentType(ContentType.JSON)
+                .header("Authorization", "Bearer " + authResponse.path("token"))
+                .body(bookData)
+                .when()
+                .basePath("BookStore/v1")
+                .post("/Books")
+                .then()
+                .log().status()
+                .log().body()
+                .statusCode(201);
+
+        given()
+                .log().all()
+                .contentType(ContentType.JSON)
+                .header("Authorization", "Bearer " + authResponse.path("token"))
+                .body(deleteBookData)
+                .when()
+                .basePath("BookStore/v1")
+                .delete("/Book")
+                .then()
+                .log().status()
+                .log().body()
+                .statusCode(204);
+
+//        open("/favicon.ico");
+//        getWebDriver().manage().addCookie(new Cookie("userID", authResponse.path("userId")));
+//        getWebDriver().manage().addCookie(new Cookie("token", authResponse.path("token")));
+//        getWebDriver().manage().addCookie(new Cookie("expires", authResponse.path("expires")));
+//
+//        open("/profile");
+//        $(".ReactTable").shouldHave(Condition.text("You Don't Know JS"));
     }
 }
