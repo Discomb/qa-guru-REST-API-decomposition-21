@@ -25,7 +25,6 @@ public class LoginTests extends TestBase {
                 .put("password", password)
                 .toString();
 
-
         Response authResponse = given()
                 .log().all()
                 .contentType(ContentType.JSON)
