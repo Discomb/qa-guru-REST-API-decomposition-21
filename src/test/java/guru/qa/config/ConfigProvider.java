@@ -35,7 +35,6 @@ public class ConfigProvider {
                 "enableVideo", true
         ));
 
-        Configuration.pageLoadStrategy = "eager";
         Configuration.browserCapabilities = capabilities;
     }
 }
