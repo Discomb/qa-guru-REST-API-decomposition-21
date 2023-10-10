@@ -42,11 +42,11 @@ public class CollectionsApi {
                 .statusCode(201);
     }
 
-    public static void addBookUnauthorized(String bookData) {
+    public static void addBookUnauthorized(AuthorizationResponseModel authResponse, BookModel book) {
         given()
                 .log().all()
                 .contentType(ContentType.JSON)
-                .body(bookData)
+                .body(generateAddBookRequest(authResponse, book))
                 .when()
                 .basePath("/BookStore/v1")
                 .post("/Books")
@@ -58,12 +58,12 @@ public class CollectionsApi {
                 .body("message", is("User not authorized!"));
     }
 
-    public static void addExistingBook(AuthorizationResponseModel authResponse, String bookData) {
+    public static void addExistingBook(AuthorizationResponseModel authResponse, BookModel book) {
         given()
                 .log().all()
                 .contentType(ContentType.JSON)
                 .header("Authorization", "Bearer " + authResponse.getToken())
-                .body(bookData)
+                .body(generateAddBookRequest(authResponse, book))
                 .when()
                 .basePath("BookStore/v1")
                 .post("/Books")
@@ -75,7 +75,11 @@ public class CollectionsApi {
                 .body("message", is("ISBN already present in the User's Collection!"));
     }
 
-    public static void deleteBookFromTheCollection(AuthorizationResponseModel authResponse, String deleteBookData) {
+    public static void deleteBookFromTheCollection(AuthorizationResponseModel authResponse, BookModel book) {
+        DeleteBookModel deleteBookData = new DeleteBookModel();
+        deleteBookData.setUserId(authResponse.getUserId());
+        deleteBookData.setIsbn(book.getIsbn());
+
         given()
                 .log().all()
                 .contentType(ContentType.JSON)

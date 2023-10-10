@@ -12,4 +12,9 @@ public class ProfilePage {
         open("/profile");
         $(".ReactTable").shouldHave(Condition.text(book.getTitle()));
     }
+
+    public static void checkBookIsNotPresent(BookModel book) {
+        open("/profile");
+        $(".ReactTable").shouldNotHave(Condition.text(book.getTitle()));
+    }
 }
