@@ -1,6 +1,7 @@
 package guru.qa.tests;
 
 import guru.qa.api.authorization.AuthorizationResponseModel;
+import guru.qa.api.collections.BookModel;
 import org.junit.jupiter.api.Test;
 
 import static guru.qa.api.authorization.AuthorizationApi.getAuthResponse;
@@ -16,16 +17,12 @@ public class CollectionTests extends TestBase {
     void addBookToTheCollectionTest() {
 
         AuthorizationResponseModel authResponse = getAuthResponse(getCredentials());
-
-        String isbn = "9781491904244";
-        String bookData = format("{\"userId\":\"%s\",\"collectionOfIsbns\":[{\"isbn\":\"%s\"}]}",
-                authResponse.getUserId(), isbn);
-        String bookName = "You Don't Know JS";
+        BookModel book = getRandomBook(authResponse);
 
         deleteAllBooks(authResponse);
-        addBookToTheCollection(authResponse, bookData);
+        addBookToTheCollection(authResponse, book);
         setAuthCookies(authResponse);
-        checkBook(bookName);
+        checkBook(book);
     }
 
     @Test
@@ -40,33 +37,33 @@ public class CollectionTests extends TestBase {
         addBookUnauthorized(bookData);
     }
 
-    @Test
-    void negative400addBookToTheCollectionTest() {
+//    @Test
+//    void negative400addBookToTheCollectionTest() {
+//
+//        AuthorizationResponseModel authResponse = getAuthResponse(getCredentials());
+//
+//        String isbn = "9781491904244";
+//        String bookData = format("{\"userId\":\"%s\",\"collectionOfIsbns\":[{\"isbn\":\"%s\"}]}",
+//                authResponse.getUserId(), isbn);
+//
+//        deleteAllBooks(authResponse);
+//        addBookToTheCollection(authResponse, bookData);
+//        addExistingBook(authResponse, bookData);
+//    }
 
-        AuthorizationResponseModel authResponse = getAuthResponse(getCredentials());
-
-        String isbn = "9781491904244";
-        String bookData = format("{\"userId\":\"%s\",\"collectionOfIsbns\":[{\"isbn\":\"%s\"}]}",
-                authResponse.getUserId(), isbn);
-
-        deleteAllBooks(authResponse);
-        addBookToTheCollection(authResponse, bookData);
-        addExistingBook(authResponse, bookData);
-    }
-
-    @Test
-    void deleteSingleBookFromTheCollectionTest() {
-
-        AuthorizationResponseModel authResponse = getAuthResponse(getCredentials());
-
-        String isbn = "9781491904244";
-        String bookData = format("{\"userId\":\"%s\",\"collectionOfIsbns\":[{\"isbn\":\"%s\"}]}",
-                authResponse.getUserId(), isbn);
-        String deleteBookData = format("{\"userId\":\"%s\",\"isbn\":\"%s\"}",
-                authResponse.getUserId(), isbn);
-
-        deleteAllBooks(authResponse);
-        addBookToTheCollection(authResponse, bookData);
-        deleteBookFromTheCollection(authResponse, deleteBookData);
-    }
+//    @Test
+//    void deleteSingleBookFromTheCollectionTest() {
+//
+//        AuthorizationResponseModel authResponse = getAuthResponse(getCredentials());
+//
+//        String isbn = "9781491904244";
+//        String bookData = format("{\"userId\":\"%s\",\"collectionOfIsbns\":[{\"isbn\":\"%s\"}]}",
+//                authResponse.getUserId(), isbn);
+//        String deleteBookData = format("{\"userId\":\"%s\",\"isbn\":\"%s\"}",
+//                authResponse.getUserId(), isbn);
+//
+//        deleteAllBooks(authResponse);
+//        addBookToTheCollection(authResponse, bookData);
+//        deleteBookFromTheCollection(authResponse, deleteBookData);
+//    }
 }

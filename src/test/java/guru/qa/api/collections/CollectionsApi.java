@@ -3,6 +3,9 @@ package guru.qa.api.collections;
 import guru.qa.api.authorization.AuthorizationResponseModel;
 import io.restassured.http.ContentType;
 
+import java.util.ArrayList;
+import java.util.concurrent.ThreadLocalRandom;
+
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.is;
 
@@ -23,12 +26,13 @@ public class CollectionsApi {
                 .statusCode(204);
     }
 
-    public static void addBookToTheCollection(AuthorizationResponseModel authResponse, String bookData) {
+    public static void addBookToTheCollection(AuthorizationResponseModel authResponse, BookModel book) {
+
         given()
                 .log().all()
                 .contentType(ContentType.JSON)
                 .header("Authorization", "Bearer " + authResponse.getToken())
-                .body(bookData)
+                .body(generateAddBookRequest(authResponse, book))
                 .when()
                 .basePath("BookStore/v1")
                 .post("/Books")
@@ -84,5 +88,41 @@ public class CollectionsApi {
                 .log().status()
                 .log().body()
                 .statusCode(204);
+    }
+
+    public static ArrayList<BookModel> getBooks(AuthorizationResponseModel authResponse) {
+        return given()
+                .log().all()
+                .contentType(ContentType.JSON)
+                .header("Authorization", "Bearer " + authResponse.getToken())
+                .when()
+                .basePath("BookStore/v1")
+                .get("/Books")
+                .then()
+                .log().status()
+                .log().body()
+                .statusCode(200)
+                .extract().as(BooksListModel.class).getBooks();
+    }
+
+    public static BookModel getRandomBook(AuthorizationResponseModel authResponse) {
+        ArrayList<BookModel> books = getBooks(authResponse);
+
+        return books.get(ThreadLocalRandom.current().nextInt(0, books.size()) + 1);
+    }
+
+    private static AddBookRequestModel generateAddBookRequest(AuthorizationResponseModel authResponse, BookModel book) {
+        ISBNModel isbn = new ISBNModel();
+        AddBookRequestModel body = new AddBookRequestModel();
+
+        isbn.setIsbn(book.getIsbn());
+
+        ArrayList<ISBNModel> listOfISBNs = new ArrayList<>();
+        listOfISBNs.add(isbn);
+
+        body.setUserId(authResponse.getUserId());
+        body.setCollectionOfIsbns(listOfISBNs);
+
+        return body;
     }
 }
