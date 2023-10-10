@@ -7,13 +7,14 @@ import guru.qa.api.collections.models.*;
 import java.util.ArrayList;
 import java.util.concurrent.ThreadLocalRandom;
 
+import static io.qameta.allure.Allure.step;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.is;
 
 public class CollectionsApi extends BaseApi {
 
     public static void deleteAllBooks(AuthorizationResponseModel authResponse) {
-        given()
+        step("Deleting all books from profile", () -> given()
                 .spec(defaultRequestSpec)
                 .queryParams("UserId", authResponse.getUserId())
                 .when()
@@ -22,12 +23,12 @@ public class CollectionsApi extends BaseApi {
                 .then()
                 .log().status()
                 .log().body()
-                .statusCode(204);
+                .statusCode(204));
     }
 
     public static void addBookToTheCollection(AuthorizationResponseModel authResponse, BookModel book) {
 
-        given()
+        step("Adding book to the collection", () -> given()
                 .spec(defaultRequestSpec)
                 .body(generateAddBookRequest(authResponse, book))
                 .when()
@@ -35,11 +36,11 @@ public class CollectionsApi extends BaseApi {
                 .post("/Books")
                 .then()
                 .spec(defaultResponseSpec)
-                .statusCode(201);
+                .statusCode(201));
     }
 
     public static void addBookUnauthorized(AuthorizationResponseModel authResponse, BookModel book) {
-        given()
+        step("Trying to add a book without authorization", () -> given()
                 .spec(unauthorizedRequestSpec)
                 .body(generateAddBookRequest(authResponse, book))
                 .when()
@@ -49,11 +50,11 @@ public class CollectionsApi extends BaseApi {
                 .spec(defaultResponseSpec)
                 .statusCode(401)
                 .body("code", is("1200"))
-                .body("message", is("User not authorized!"));
+                .body("message", is("User not authorized!")));
     }
 
     public static void addExistingBook(AuthorizationResponseModel authResponse, BookModel book) {
-        given()
+        step("Trying to add an existing book", () -> given()
                 .spec(defaultRequestSpec)
                 .body(generateAddBookRequest(authResponse, book))
                 .when()
@@ -63,7 +64,7 @@ public class CollectionsApi extends BaseApi {
                 .spec(defaultResponseSpec)
                 .statusCode(400)
                 .body("code", is("1210"))
-                .body("message", is("ISBN already present in the User's Collection!"));
+                .body("message", is("ISBN already present in the User's Collection!")));
     }
 
     public static void deleteBookFromTheCollection(AuthorizationResponseModel authResponse, BookModel book) {
@@ -71,7 +72,7 @@ public class CollectionsApi extends BaseApi {
         deleteBookData.setUserId(authResponse.getUserId());
         deleteBookData.setIsbn(book.getIsbn());
 
-        given()
+        step("Deleting a book from the collection", () -> given()
                 .spec(defaultRequestSpec)
                 .body(deleteBookData)
                 .when()
@@ -79,11 +80,12 @@ public class CollectionsApi extends BaseApi {
                 .delete("/Book")
                 .then()
                 .spec(defaultResponseSpec)
-                .statusCode(204);
+                .statusCode(204));
     }
 
     public static ArrayList<BookModel> getBooks() {
-        return given()
+
+        return step("Getting a list of available books", () -> given()
                 .spec(defaultRequestSpec)
                 .when()
                 .basePath("BookStore/v1")
@@ -91,13 +93,13 @@ public class CollectionsApi extends BaseApi {
                 .then()
                 .spec(defaultResponseSpec)
                 .statusCode(200)
-                .extract().as(BooksListModel.class).getBooks();
+                .extract().as(BooksListModel.class).getBooks());
     }
 
     public static BookModel getRandomBook() {
         ArrayList<BookModel> books = getBooks();
 
-        return books.get(ThreadLocalRandom.current().nextInt(0, books.size() - 1) + 1);
+        return step("Choosing a book", () -> books.get(ThreadLocalRandom.current().nextInt(0, books.size() - 1) + 1));
     }
 
     private static AddBookRequestModel generateAddBookRequest(AuthorizationResponseModel authResponse, BookModel book) {

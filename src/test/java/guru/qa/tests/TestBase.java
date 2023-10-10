@@ -1,18 +1,20 @@
 package guru.qa.tests;
 
-import com.codeborne.selenide.Configuration;
-import io.restassured.RestAssured;
+import com.codeborne.selenide.logevents.SelenideLogger;
+import guru.qa.config.ConfigProvider;
+import io.qameta.allure.selenide.AllureSelenide;
 import org.junit.jupiter.api.BeforeAll;
-
-import static com.codeborne.selenide.Configuration.baseUrl;
+import org.junit.jupiter.api.BeforeEach;
 
 public class TestBase {
 
     @BeforeAll
     public static void setup() {
-        RestAssured.baseURI = "https://demoqa.com";
+        new ConfigProvider().setup();
+    }
 
-        baseUrl = RestAssured.baseURI;
-        Configuration.pageLoadStrategy = "eager";
+    @BeforeEach
+    void beforeEach() {
+        SelenideLogger.addListener("AllureSelenide", new AllureSelenide());
     }
 }
