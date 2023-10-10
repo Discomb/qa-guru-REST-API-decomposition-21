@@ -1,7 +1,8 @@
 package guru.qa.api.collections;
 
-import guru.qa.api.authorization.AuthorizationResponseModel;
-import io.restassured.http.ContentType;
+import guru.qa.api.authorization.models.AuthorizationResponseModel;
+import guru.qa.api.base.BaseApi;
+import guru.qa.api.collections.models.*;
 
 import java.util.ArrayList;
 import java.util.concurrent.ThreadLocalRandom;
@@ -9,13 +10,11 @@ import java.util.concurrent.ThreadLocalRandom;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.is;
 
-public class CollectionsApi {
+public class CollectionsApi extends BaseApi {
 
     public static void deleteAllBooks(AuthorizationResponseModel authResponse) {
         given()
-                .log().all()
-                .contentType(ContentType.JSON)
-                .header("Authorization", "Bearer " + authResponse.getToken())
+                .spec(defaultRequestSpec)
                 .queryParams("UserId", authResponse.getUserId())
                 .when()
                 .basePath("BookStore/v1")
@@ -29,30 +28,25 @@ public class CollectionsApi {
     public static void addBookToTheCollection(AuthorizationResponseModel authResponse, BookModel book) {
 
         given()
-                .log().all()
-                .contentType(ContentType.JSON)
-                .header("Authorization", "Bearer " + authResponse.getToken())
+                .spec(defaultRequestSpec)
                 .body(generateAddBookRequest(authResponse, book))
                 .when()
                 .basePath("BookStore/v1")
                 .post("/Books")
                 .then()
-                .log().status()
-                .log().body()
+                .spec(defaultResponseSpec)
                 .statusCode(201);
     }
 
     public static void addBookUnauthorized(AuthorizationResponseModel authResponse, BookModel book) {
         given()
-                .log().all()
-                .contentType(ContentType.JSON)
+                .spec(unauthorizedRequestSpec)
                 .body(generateAddBookRequest(authResponse, book))
                 .when()
                 .basePath("/BookStore/v1")
                 .post("/Books")
                 .then()
-                .log().status()
-                .log().body()
+                .spec(defaultResponseSpec)
                 .statusCode(401)
                 .body("code", is("1200"))
                 .body("message", is("User not authorized!"));
@@ -60,16 +54,13 @@ public class CollectionsApi {
 
     public static void addExistingBook(AuthorizationResponseModel authResponse, BookModel book) {
         given()
-                .log().all()
-                .contentType(ContentType.JSON)
-                .header("Authorization", "Bearer " + authResponse.getToken())
+                .spec(defaultRequestSpec)
                 .body(generateAddBookRequest(authResponse, book))
                 .when()
                 .basePath("BookStore/v1")
                 .post("/Books")
                 .then()
-                .log().status()
-                .log().body()
+                .spec(defaultResponseSpec)
                 .statusCode(400)
                 .body("code", is("1210"))
                 .body("message", is("ISBN already present in the User's Collection!"));
@@ -81,38 +72,32 @@ public class CollectionsApi {
         deleteBookData.setIsbn(book.getIsbn());
 
         given()
-                .log().all()
-                .contentType(ContentType.JSON)
-                .header("Authorization", "Bearer " + authResponse.getToken())
+                .spec(defaultRequestSpec)
                 .body(deleteBookData)
                 .when()
                 .basePath("BookStore/v1")
                 .delete("/Book")
                 .then()
-                .log().status()
-                .log().body()
+                .spec(defaultResponseSpec)
                 .statusCode(204);
     }
 
-    public static ArrayList<BookModel> getBooks(AuthorizationResponseModel authResponse) {
+    public static ArrayList<BookModel> getBooks() {
         return given()
-                .log().all()
-                .contentType(ContentType.JSON)
-                .header("Authorization", "Bearer " + authResponse.getToken())
+                .spec(defaultRequestSpec)
                 .when()
                 .basePath("BookStore/v1")
                 .get("/Books")
                 .then()
-                .log().status()
-                .log().body()
+                .spec(defaultResponseSpec)
                 .statusCode(200)
                 .extract().as(BooksListModel.class).getBooks();
     }
 
-    public static BookModel getRandomBook(AuthorizationResponseModel authResponse) {
-        ArrayList<BookModel> books = getBooks(authResponse);
+    public static BookModel getRandomBook() {
+        ArrayList<BookModel> books = getBooks();
 
-        return books.get(ThreadLocalRandom.current().nextInt(0, books.size()) + 1);
+        return books.get(ThreadLocalRandom.current().nextInt(0, books.size() - 1) + 1);
     }
 
     private static AddBookRequestModel generateAddBookRequest(AuthorizationResponseModel authResponse, BookModel book) {

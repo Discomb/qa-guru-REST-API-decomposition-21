@@ -1,5 +1,6 @@
 package guru.qa.api.authorization;
 
+import guru.qa.api.authorization.models.AuthorizationResponseModel;
 import io.restassured.http.ContentType;
 
 import static guru.qa.helpers.CustomAllureListener.withCustomTemplates;

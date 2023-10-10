@@ -1,4 +1,4 @@
-package guru.qa.api.authorization;
+package guru.qa.api.authorization.models;
 
 import lombok.Getter;
 
