@@ -13,7 +13,7 @@ import static java.lang.String.format;
 public class CollectionTests extends TestBase {
 
     @Test
-    void addBookToCollectionTest() {
+    void addBookToTheCollectionTest() {
 
         AuthorizationResponseModel authResponse = getAuthResponse(getCredentials());
 
@@ -29,7 +29,7 @@ public class CollectionTests extends TestBase {
     }
 
     @Test
-    void negative401AddBookToCollectionTest() {
+    void negative401AddBookToTheCollectionTest() {
 
         AuthorizationResponseModel authResponse = getAuthResponse(getCredentials());
 
@@ -41,7 +41,7 @@ public class CollectionTests extends TestBase {
     }
 
     @Test
-    void negative400addBookToCollectionTest() {
+    void negative400addBookToTheCollectionTest() {
 
         AuthorizationResponseModel authResponse = getAuthResponse(getCredentials());
 
@@ -55,7 +55,7 @@ public class CollectionTests extends TestBase {
     }
 
     @Test
-    void deleteSingleBookFromCollectionTest() {
+    void deleteSingleBookFromTheCollectionTest() {
 
         AuthorizationResponseModel authResponse = getAuthResponse(getCredentials());
 
